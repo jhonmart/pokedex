@@ -18,24 +18,27 @@
 export default {
   name: 'List',
   props: {
-    arrayPokemon: [],
+    arrayPokemon: {
+      type: Array
+    },
   },
   methods: {
     detail(ev){
       this.$emit('select', ev)
     },
     changeIMG(id){
-      console.log('Erro', id)
       let el = document.querySelector(`#pk_${id}`),
-          newIMG = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`
-      if(el.src != newIMG){
-        el.parentElement.title = 'Loading reverse image'
+          newIMG = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`,
+          new404 = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/404.svg`
+
+      if(el.src != newIMG && el.src != new404){
+        el.parentElement.title = 'Sprite SVG not found, load PNG'
         el.alt = 'SVG not found image'
         el.src = newIMG
-      } else{
+      } else if(el.src == newIMG){
         el.parentElement.title = 'Sprite not found "Pokemon 404"'
         el.alt = 'Not found image'
-        el.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/404.svg`
+        el.src = new404
       }
     }
   }

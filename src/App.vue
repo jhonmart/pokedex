@@ -1,95 +1,146 @@
 <template>
   <div id="app" class="container">
-    <div class="row">
-      <div class="input-field col s6">
-        <input value="Alvin" id="first_name2" type="text" class="validate">
-        <label class="active" for="first_name2">First Name</label>
-      </div>
+    <div id="list">
+      <Search v-on:search="result"/>
+      <List v-bind:arrayPokemon="pokemons" v-on:select="detail"/>
+
+
+      <sliding-pagination
+        v-if="totalPages>1"
+        class="blue darken-2"
+        :current="currentPage"
+        :total="totalPages"
+        @page-change="pageChangeHandler"
+      ></sliding-pagination>
     </div>
-    <div class="row">
-      <input type="text" v-model="start" class="col s11">
-      <button class="col s1" v-on:click="search">
-        <i class="material-icons gren">send</i>
-      </button>
-    </div>
-    <List v-bind:arrayPokemon="pokemons" v-on:select="detail"/>
+
+    <ModalDetails v-bind:pokemon="pokemonSelect"/>
   </div>
 </template>
 
 <script>
-// https://pokeapi.co/api/v2/type/
-// https://pokeapi.co/api/v2/ability/
-
-import List from './components/PokeList.vue'
+import List from './components/List.vue'
+import Search from './components/Search.vue'
+import ModalDetails from './components/ModalDetails.vue'
+import SlidingPagination from 'vue-sliding-pagination'
 
 export default {
   name: 'App',
   components: {
-    List
+    List,
+    Search,
+    SlidingPagination,
+    ModalDetails
   },
   data(){
     return {
-      pokemons: [],
-      types: [],
+      pokemons: [{
+        id: 0,
+        name: '',
+        img: ''
+      }],
+      pokemonSelect: {
+        name: '',
+        abilities: [{ability: {name: ""}}],
+        id : 0
+      },
+
+      currentPage: 1,
+      totalPages: 0,
+
       start: 0,
-      qtdItens: 0
+      qtdView: 20,
+
+      keyword: '',
+      typeSearch: 'https://pokeapi.co/api/v2/pokemon/'
     }
   },
   methods: {
-    search(){
-      console.log(this.start)
-      fetch(`https://pokeapi.co/api/v2/pokemon/?offset=${this.start}&limit=50`)
+    search(start = this.start){
+      fetch(`${this.typeSearch}?offset=${start}&limit=${this.qtdView}`)
       .then(el=>el.json())
       .then(el=>{
-          this.pokemons = el.results.map(camps=>({
-          ...camps,
-          id: camps.url.split('/')[6],
-          img: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/${camps.url.split('/')[6]}.svg`
-        }))
+          let listItens = (el.results || el.pokemon)
+          if(el.abilities && !listItens){
+            this.pokemons = [{
+              id: el.id,
+              name: el.name,
+              url: 'https://pokeapi.co/api/v2/pokemon/'+ el.id,
+              img: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/${el.id}.svg`
+            }]
 
-        this.qtdItens = el.count
+            this.totalPages = 0
+          } else{
+            this.pokemons = listItens.map(camps=>({
+              ...camps,
+              id: (camps.url || camps.pokemon.url).split('/')[6],
+              img: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/${(camps.url || camps.pokemon.url).split('/')[6]}.svg`
+            })) || []
+
+            this.totalPages = Math.ceil(el.count/this.qtdView)
+          }
       })
     },
 
+    pageChangeHandler(selectedPage) {
+      this.currentPage = selectedPage
+
+      this.search(this.qtdView*(selectedPage-1))
+    },
+
     detail(ix){
-      console.log('select', ix)
       fetch(`https://pokeapi.co/api/v2/pokemon/${ix}`)
       .then(el=>el.json())
       .then(el=>{
+        el.img = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/${ix}.svg`
+        this.pokemonSelect = el
+        document.querySelector('#modal-detail').style.display = 'block'
+        document.querySelector('.modal-overlay').style.display = 'block'
+        document.querySelector('#list').style.filter = 'blur(3px)'
         console.log(el)
       })
-    }
+    },
+
+    result(kw){
+      this.typeSearch = kw
+      this.search()
+      console.log('Pesquisar', kw)
+    },
+
   },
   mounted () {
-    fetch(`https://pokeapi.co/api/v2/pokemon/?offset=${this.start}&limit=50`)
-      .then(el=>el.json())
-      .then(el=>{
-          this.pokemons = el.results.map(camps=>({
-          ...camps,
-          id: camps.url.split('/')[6],
-          img: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/${camps.url.split('/')[6]}.svg`
-        }))
-
-        this.qtdItens = el.count
-      })
-
-      fetch(`https://pokeapi.co/api/v2/type/`)
-      .then(el=>el.json())
-      .then(el=>{
-        this.types = el.results.map(camps=>camps.name)
-      })
+    this.search()
   }
 }
 </script>
 
 <style>
-  .container{
-    height: 720px;
-    width: 90%;
-    overflow: auto;
-  }
   body{
-    background-color: rgb(192, 21, 21);
+    background-color: #fcfcfc;
     background: linear-gradient(45deg, #fff, #fcfcfc);
+  }
+
+  .container{
+    width: 90%;
+    padding: 30px;
+  }
+
+  li[class*=--active]{
+    background-color: rgba(0,0,0,0.1);
+  }
+
+  nav.blue{
+    width: 500px;
+    margin-left: calc(50% - 230px);
+    text-align: -webkit-center;
+  }
+
+  ul.c-sliding-pagination__list{
+    width: fit-content;
+  }
+
+  .chip{
+    text-transform: capitalize;
+    color: #fcfcfc;
   }
 </style>

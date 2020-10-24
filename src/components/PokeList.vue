@@ -6,7 +6,7 @@
       v-bind:key="pokemon.id" v-on:click="detail(pokemon.id)">
         <div class="card  blue lighten-2">
           <span class="id white-text grey darken-2">#{{pokemon.id}}</span>
-          <img v-bind:src="pokemon.img" alt="" class="icon">
+          <img v-bind:src="pokemon.img" v-bind:id="'pk_'+pokemon.id" v-on:error="changeIMG(pokemon.id)" alt="" class="icon">
           <span class="title">{{pokemon.name}}</span>
         </div>
       </div>
@@ -23,6 +23,20 @@ export default {
   methods: {
     detail(ev){
       this.$emit('select', ev)
+    },
+    changeIMG(id){
+      console.log('Erro', id)
+      let el = document.querySelector(`#pk_${id}`),
+          newIMG = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`
+      if(el.src != newIMG){
+        el.parentElement.title = 'Loading reverse image'
+        el.alt = 'SVG not found image'
+        el.src = newIMG
+      } else{
+        el.parentElement.title = 'Sprite not found "Pokemon 404"'
+        el.alt = 'Not found image'
+        el.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/404.svg`
+      }
     }
   }
 }

@@ -80,7 +80,8 @@ span.id {
 }
 
 .card {
-    border-radius: 15px;
-    height: 150px;
+  border-radius: 15px;
+  height: 150px;
+  cursor: pointer;
 }
 </style>

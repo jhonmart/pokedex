@@ -18,4 +18,7 @@ export default {
 </script>
 
 <style>
+.abilities{
+  padding-top: 10px;
+}
 </style>

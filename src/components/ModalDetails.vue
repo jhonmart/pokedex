@@ -1,18 +1,16 @@
 <template>
   <div class="modal-complete">
     <div id="modal-detail" class="modal transparent">
-      <div class="sup row">
-        <h3 class="center name-pokemon white-text col s12">
-          {{pokemon.name}}
-          <i class="close material-icons red-text medium right" v-on:click="close">close</i>
-        </h3>
+      <div class="sup">
+        <i class="close material-icons red-text medium right" v-on:click="close">close</i>
       </div>
 
       <div class="sub">
         <div class="row">
           <img v-bind:src="pokemon.img"  class="sprite col s6 offset-s3" v-bind:id="'pk_modal_'+pokemon.id" v-on:error="changeIMG(pokemon.id)" alt="">
-
+          
           <div class="col s12">
+            <h3 class="center name-pokemon">{{pokemon.name}}</h3>
             <span class="info chip green white-text left">
               #{{pokemon.id}}
             </span>
@@ -56,7 +54,6 @@ export default {
     },
     
     changeIMG(id){
-      console.log('Erro modal', id)
       let el = document.querySelector(`#pk_modal_${id}`),
         newIMG = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`,
         new404 = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/404.svg`
@@ -103,26 +100,38 @@ export default {
   }
 
   .sup{
-    height: calc(50% - 150px);
+    height: calc(50% - 280px);
   }
+  
+  @media only screen and (max-width: 600px) {
+    .sup{
+      height: calc(50% - 190px);
+    }
+  }
+
 
   .sub{
     border-radius: 75px 75px 0px 0px;
-    background-color: #ededed;
+    background-color: #f5f5f5;
     z-index: 1;
     bottom: -20px;
     position: relative;
-    min-height: calc(50% + 110px);
+    min-height: calc(70% + 75px);
   }
 
-  .sub .name-pokemon{
-    top: -200px;
+  .name-pokemon{
     position: relative;
     z-index: 1;
   }
   
   .sprite{
     max-height: 300px;
+  }
+
+  @media only screen and (min-width: 620px) {
+    .sprite[src*=png]{
+      padding: 0px 250px 0px 250px;
+    }
   }
 
   .sub .row{

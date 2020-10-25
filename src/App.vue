@@ -91,13 +91,12 @@ export default {
             this.noPagePokemons = exempleList
             this.pokemons = exempleList.slice(0, this.qtdView)
             this.totalPages = Math.ceil(exempleList.length/this.qtdView)
+            this.currentPage = 1
           } else{
             this.pokemons = exempleList
             this.noPagePokemons = []
             this.totalPages = Math.ceil(el.count/this.qtdView)
           }
-
-          this.currentPage = 1
         }
       })
       .catch(err=>{

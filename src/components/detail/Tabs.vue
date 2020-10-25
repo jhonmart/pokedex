@@ -67,6 +67,7 @@ export default {
 .tabs .tab a {
   color: rgb(110 121 238 / 70%);
 }
+
 .tabs .tab a:hover, .tabs .tab a.active {
   background-color: #b8c3e3b3 !important;
   color: rgb(8 22 166 / 70%);

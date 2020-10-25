@@ -101,6 +101,9 @@ export default {
 
   .sup{
     height: calc(50% - 280px);
+    z-index: 2;
+    position: relative;
+    min-height: 200px;
   }
   
   @media only screen and (max-width: 600px) {

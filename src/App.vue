@@ -30,6 +30,11 @@ export default {
   },
   data(){
     return {
+      noPagePokemons: [{
+        id: 1,
+        name: '',
+        img: ''
+      }],
       pokemons: [{
         id: 1,
         name: '',
@@ -72,15 +77,27 @@ export default {
             img: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/${el.id}.svg`
           }]
 
+          this.noPagePokemons = []
           this.totalPages = 0
         } else{
-          this.pokemons = listItens.map(camps=>({
+          let exempleList = listItens.map(camps=>({
             name: camps.pokemon? camps.pokemon.name : camps.name,
             id: (camps.url || camps.pokemon.url).split('/')[6],
             img: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/${(camps.url || camps.pokemon.url).split('/')[6]}.svg`
           })) || []
 
-          this.totalPages = Math.ceil(el.count/this.qtdView)
+          
+          if(exempleList.length>this.qtdView){
+            this.noPagePokemons = exempleList
+            this.pokemons = exempleList.slice(0, this.qtdView)
+            this.totalPages = Math.ceil(exempleList.length/this.qtdView)
+          } else{
+            this.pokemons = exempleList
+            this.noPagePokemons = []
+            this.totalPages = Math.ceil(el.count/this.qtdView)
+          }
+
+          this.currentPage = 1
         }
       })
       .catch(err=>{
@@ -88,11 +105,20 @@ export default {
         alert('There was an unexpected error')
       })
     },
+    
+    selectInnerPage(page){
+      console.log('page', page)
+      this.pokemons = this.noPagePokemons.slice(this.qtdView * (page - 1), this.qtdView * page)
+    },
 
     pageChangeHandler(selectedPage) {
       this.currentPage = selectedPage
-
-      this.search(this.qtdView*(selectedPage-1))
+      console.log('change page', this.noPagePokemons.length, this.pokemons.length)
+      if(this.noPagePokemons.length > this.pokemons.length){
+        this.selectInnerPage(selectedPage)
+      } else{
+        this.search(this.qtdView*(selectedPage-1))
+      }
     },
 
     detail(ix){
